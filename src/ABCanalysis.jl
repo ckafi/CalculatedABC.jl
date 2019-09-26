@@ -14,6 +14,16 @@
 
 module ABCanalysis
 
-greet() = print("Hello World!")
+function curve(data::Array{Float64,1})
+    sorted_data = sort(data, rev=true)
+    n = length(sorted_data)
+
+    effort = (1:n) / n
+
+    yield = cumsum(sorted_data)
+    yield /= sum(sorted_data)
+
+    return (effort,yield)
+end
 
 end # module
