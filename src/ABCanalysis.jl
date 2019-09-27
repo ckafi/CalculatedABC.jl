@@ -19,9 +19,7 @@ function curve(data::Array{Float64,1})
     n = length(sorted_data)
 
     effort = (1:n) / n
-
-    yield = cumsum(sorted_data)
-    yield /= sum(sorted_data)
+    yield = cumsum(sorted_data) / sum(sorted_data)
 
     return (effort,yield)
 end

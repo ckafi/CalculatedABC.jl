@@ -4,12 +4,12 @@ using Documenter
 using ABCanalysis
 
 makedocs(
-    sitename = "ABCanalysis",
+    sitename = "ABCanalysis.jl",
     authors = "Tobias Frilling",
     format = Documenter.HTML(),
     modules = [ABCanalysis]
 )
 
 deploydocs(
-    repo = "github.com/ckafi/ABCanalysis"
+    repo = "github.com/ckafi/ABCanalysis.jl"
 )
