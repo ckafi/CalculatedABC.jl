@@ -14,14 +14,24 @@
 
 module ABCanalysis
 
-function curve(data::Array{Float64,1})
-    sorted_data = sort(data, rev=true)
-    n = length(sorted_data)
+using Interpolations
 
-    effort = (1:n) / n
-    yield = cumsum(sorted_data) / sum(sorted_data)
+struct Curve
+    effort::Array{Float64,1}
+    yield::Array{Float64,1}
+    data::Array{Float64,1}
+    itp::AbstractInterpolation{Float64,1,BSpline{Cubic{Line{OnGrid}}}}
 
-    return (effort,yield)
+    function Curve(data::Array{Float64,1})
+        sorted_data = sort(data, rev = true)
+        n = length(sorted_data)
+
+        effort = (1:n) / n
+        yield = cumsum(sorted_data) / sum(sorted_data)
+        itp = CubicSplineInterpolation(effort, yield)
+
+        new(collect(effort), yield, data, itp)
+    end
 end
 
 end # module
