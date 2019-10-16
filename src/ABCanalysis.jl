@@ -17,20 +17,20 @@ module ABCanalysis
 using Interpolations
 
 struct Curve
-    effort::Array{Float64,1}
-    yield::Array{Float64,1}
-    data::Array{Float64,1}
-    itp::AbstractInterpolation{Float64,1,BSpline{Cubic{Line{OnGrid}}}}
+    effort::AbstractRange{Float64}
+    yield::AbstractArray{<:Real,1}
+    interpolation::AbstractInterpolation{<:Real,1,BSpline{Cubic{Line{OnGrid}}}}
 
-    function Curve(data::Array{Float64,1})
+    function Curve(data::AbstractArray{<:Real,1})
         sorted_data = sort(data, rev = true)
         n = length(sorted_data)
 
-        effort = (1:n) / n
-        yield = cumsum(sorted_data) / sum(sorted_data)
-        itp = CubicSplineInterpolation(effort, yield)
+        # (0,0) needs to be first point
+        effort = (0:n) / n
+        yield = pushfirst!(cumsum(sorted_data) / sum(sorted_data), 0)
+        interpolation = CubicSplineInterpolation(effort, yield)
 
-        new(collect(effort), yield, data, itp)
+        new(effort, yield, interpolation)
     end
 end
 
