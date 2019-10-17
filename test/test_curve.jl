@@ -1,9 +1,5 @@
-using Random, Distributions
-
-accuracy = 1.0e-15
-
+@testset "Curve struct" begin
 @testset "Uniformly distributed values" begin
-    Random.seed!(123)
     n = 20
     data = rand(Uniform(0,10), n)
     curve = ABCanalysis.Curve(data)
@@ -34,7 +30,6 @@ accuracy = 1.0e-15
 end
 
 @testset "Exponentially distributed values" begin
-    Random.seed!(123)
     n = 20
     data = rand(Exponential(1), n)
     curve = ABCanalysis.Curve(data)
@@ -62,4 +57,5 @@ end
                            0.9911110632975999,
                            1.0])
     @test all(d->(d<accuracy), diff)
+end
 end

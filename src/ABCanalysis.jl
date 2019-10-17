@@ -22,6 +22,7 @@ struct Curve
     interpolation::AbstractInterpolation{<:Real,1,BSpline{Cubic{Line{OnGrid}}}}
 
     function Curve(data::AbstractArray{<:Real,1})
+        @assert all(x -> x>=0, data)
         sorted_data = sort(data, rev = true)
         n = length(sorted_data)
 
@@ -39,7 +40,6 @@ end
 
 Removes the smallest values from `data` whose cumulative yield is less than `threshold`. Does not preserve the order of `data`.
 """
-
 function removeSmallYields(data::AbstractArray{<:Real,1}, threshold::Real = 0.005)
     perm = sortperm(data)
     sorted_data = data[perm]
