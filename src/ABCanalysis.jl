@@ -48,4 +48,15 @@ function removeSmallYields(data::AbstractArray{<:Real,1}, threshold::Real = 0.00
     data[perm[threshold_index:length(data)]]
 end
 
+"""
+    gini(data::AbstractArray{<:Real,1})
+
+Calculates the Gini coefficient for the given data.
+"""
+function gini(data::AbstractArray{<:Real,1})
+  @assert all(x -> x>=0, data)
+  y = sort(data)
+  n = length(y)
+  2 * sum([i*y[i] for i in 1:n]) / (n*sum(y)) - (n+1)/n
+end
 end # module
