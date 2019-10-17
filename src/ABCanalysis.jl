@@ -59,4 +59,16 @@ function gini(data::AbstractArray{<:Real,1})
   n = length(y)
   2 * sum([i*y[i] for i in 1:n]) / (n*sum(y)) - (n+1)/n
 end
+
+"""
+    gini(curve::ABCanalysis.Curve)
+
+Calculates the Gini coefficient for the given ABC curve.
+"""
+function gini(curve::ABCanalysis.Curve)
+  yield = curve.yield
+  step::Float64 = curve.effort.step
+  # simplified trapezoidal rule. The '- 1/2 * 2' is for the gini coefficient
+  ((sum(yield) - yield[end]/2) * step - 1/2) * 2
+end
 end # module

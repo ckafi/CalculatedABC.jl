@@ -26,7 +26,7 @@
                            0.9824989229044542,
                            0.994333140487581,
                            1.0000000000000002])
-    @test all(d->(d<accuracy), diff)
+    @test all(d->(d<precision), diff)
 end
 
 @testset "Exponentially distributed values" begin
@@ -56,6 +56,6 @@ end
                            0.9810003669812493,
                            0.9911110632975999,
                            1.0])
-    @test all(d->(d<accuracy), diff)
+    @test all(d->(d<precision), diff)
 end
 end

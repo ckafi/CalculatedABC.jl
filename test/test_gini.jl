@@ -3,5 +3,7 @@
     data = rand(n)
     curve = ABCanalysis.Curve(data)
 
-    @test ABCanalysis.gini(data) ==  0.3008352645541903
+    answer = 0.3008352645541903
+    @test ABCanalysis.gini(data) - answer < precision
+    @test ABCanalysis.gini(curve) - answer < precision
 end
