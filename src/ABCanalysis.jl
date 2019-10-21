@@ -16,12 +16,12 @@ module ABCanalysis
 
 using Interpolations
 
-struct Curve
+struct ABCcurve
     effort::AbstractRange{Float64}
     yield::AbstractArray{<:Real,1}
     interpolation::AbstractInterpolation{<:Real,1,BSpline{Cubic{Line{OnGrid}}}}
 
-    function Curve(data::AbstractArray{<:Real,1})
+    function ABCcurve(data::AbstractArray{<:Real,1})
         @assert all(x -> x>=0, data)
         sorted_data = sort(data, rev = true)
         n = length(sorted_data)
@@ -36,11 +36,12 @@ struct Curve
 end
 
 """
-    removeSmallYields(data, threshold=0.005)
+    remove_small_yields(data, threshold=0.005)
 
-Removes the smallest values from `data` whose cumulative yield is less than `threshold`. Does not preserve the order of `data`.
+Removes the smallest values from `data` whose cumulative yield is less than `threshold`.
+Does not preserve the order of `data`.
 """
-function removeSmallYields(data::AbstractArray{<:Real,1}, threshold::Real = 0.005)
+function remove_small_yields(data::AbstractArray{<:Real,1}, threshold::Real = 0.005)
     perm = sortperm(data)
     sorted_data = data[perm]
     yield = cumsum(sorted_data) / sum(sorted_data)
@@ -49,11 +50,11 @@ function removeSmallYields(data::AbstractArray{<:Real,1}, threshold::Real = 0.00
 end
 
 """
-    gini(data::AbstractArray{<:Real,1})
+    gini_coeff(data::AbstractArray{<:Real,1})
 
 Calculates the Gini coefficient for the given data.
 """
-function gini(data::AbstractArray{<:Real,1})
+function gini_coeff(data::AbstractArray{<:Real,1})
   @assert all(x -> x>=0, data)
   y = sort(data)
   n = length(y)
@@ -61,11 +62,11 @@ function gini(data::AbstractArray{<:Real,1})
 end
 
 """
-    gini(curve::ABCanalysis.Curve)
+    gini_coeff(curve::ABCcurve)
 
 Calculates the Gini coefficient for the given ABC curve.
 """
-function gini(curve::ABCanalysis.Curve)
+function gini_coeff(curve::ABCcurve)
   yield = curve.yield
   step::Float64 = curve.effort.step
   # simplified trapezoidal rule. The '- 1/2 * 2' is for the gini coefficient

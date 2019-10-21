@@ -2,7 +2,7 @@
 @testset "Uniformly distributed values" begin
     n = 20
     data = rand(Uniform(0,10), n)
-    curve = ABCanalysis.Curve(data)
+    curve = ABCanalysis.ABCcurve(data)
     @test curve.effort == 0:0.05:1.0
     # can't test yield values for equality because of rounding errors
     diff = (curve.yield - [0,
@@ -32,7 +32,7 @@ end
 @testset "Exponentially distributed values" begin
     n = 20
     data = rand(Exponential(1), n)
-    curve = ABCanalysis.Curve(data)
+    curve = ABCanalysis.ABCcurve(data)
     @test curve.effort == 0:0.05:1.0
     # can't test yield values for equality because of rounding errors
     diff = (curve.yield - [0.0,
