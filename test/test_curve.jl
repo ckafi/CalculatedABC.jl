@@ -4,7 +4,6 @@
     data = rand(Uniform(0,10), n)
     curve = ABCanalysis.ABCcurve(data)
     @test curve.effort == 0:0.05:1.0
-    # can't test yield values for equality because of rounding errors
     diff = (curve.yield - [0,
                            0.10223370412290836,
                            0.19630374973228518,
@@ -34,7 +33,6 @@ end
     data = rand(Exponential(1), n)
     curve = ABCanalysis.ABCcurve(data)
     @test curve.effort == 0:0.05:1.0
-    # can't test yield values for equality because of rounding errors
     diff = (curve.yield - [0.0,
                            0.1559704817922999,
                            0.259107787045309,
@@ -56,6 +54,15 @@ end
                            0.9810003669812493,
                            0.9911110632975999,
                            1.0])
+    @test all(d->(d<precision), diff)
+end
+
+@testset "SwissInhabitants data" begin
+    data = readdlm("swissinhabitants")[:,1]
+    curve = ABCanalysis.ABCcurve(data) 
+    @test curve.effort == 0:0.0003453038674033149:1.0
+    expected_yield = readdlm("expected_yield")[:,1]
+    diff = (curve.yield - expected_yield)
     @test all(d->(d<precision), diff)
 end
 end

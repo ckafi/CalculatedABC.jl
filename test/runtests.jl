@@ -1,6 +1,7 @@
 using Test
 using ABCanalysis
 
+using DelimitedFiles
 using Random, Distributions
 Random.seed!(123)
 
