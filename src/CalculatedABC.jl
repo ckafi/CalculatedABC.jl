@@ -16,8 +16,8 @@ module CalculatedABC
 
 using Interpolations
 
-include("ABCanalysis.jl")
 include("ABCcurve.jl")
+include("ABCanalysis.jl")
 include("Gini_coeff.jl")
 include("utils.jl")
 
