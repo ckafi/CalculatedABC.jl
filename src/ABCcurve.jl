@@ -32,8 +32,28 @@ struct ABCcurve
 end
 
 function Base.show(io::IO, ::MIME"text/plain", curve::ABCcurve)
-	print(io, curve.effort |> length, "-element ABCcurve\n")
-	for e in zip(curve.effort, curve.yield)
-		show(io, e)
+    print(io, curve.effort |> length, "-element ABCcurve")
+    limit::Bool = get(io, :limit, false)
+    if limit
+        rows = displaysize(io)[1] - 3
+        rows < 2 && (print(io, " …"); return)
+        rows -= 2
+    else
+        rows = typemax(Int)
+    end
+
+    show_part(iter) = for v in iter
+        print(io, "\n ")
+        show(io, v)
+    end
+
+    zipped_curve = collect(zip(curve.effort, curve.yield))
+
+    if rows < length(zipped_curve)
+        show_part(zipped_curve[1:div(rows-1,2)])
+        print(io, "\n ⋮")
+        show_part(zipped_curve[end-div(rows-1,2):end])
+    else
+        show_part(zipped_curve)
     end
 end
