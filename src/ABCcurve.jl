@@ -12,17 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module ABCanalysis
+struct ABCcurve
+    effort::AbstractRange{Float64}
+    yield::AbstractArray{<:Real,1}
+    interpolation::AbstractInterpolation{<:Real,1,BSpline{Cubic{Line{OnGrid}}}}
 
-using Interpolations
+    function ABCcurve(data::AbstractArray{<:Real,1})
+        @assert all(x->x >= 0, data)
+        sorted_data = sort(data, rev = true)
+        n = length(sorted_data)
 
-include("ABCcurve.jl")
-include("Gini_coeff.jl")
-include("utils.jl")
+        # (0,0) needs to be first point
+        effort = (0:n) / n
+        yield = pushfirst!(cumsum(sorted_data) / sum(sorted_data), 0)
+        interpolation = CubicSplineInterpolation(effort, yield)
 
-
-
-
-
+        new(effort, yield, interpolation)
+    end
 end
-end # module
