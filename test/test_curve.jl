@@ -2,7 +2,7 @@
 @testset "Uniformly distributed values" begin
     n = 20
     data = rand(Uniform(0,10), n)
-    curve = ABCanalysis.ABCcurve(data)
+    curve = CalculatedABC.ABCcurve(data)
     @test curve.effort == 0:0.05:1.0
     diff = (curve.yield - [0,
                            0.10223370412290836,
@@ -31,7 +31,7 @@ end
 @testset "Exponentially distributed values" begin
     n = 20
     data = rand(Exponential(1), n)
-    curve = ABCanalysis.ABCcurve(data)
+    curve = CalculatedABC.ABCcurve(data)
     @test curve.effort == 0:0.05:1.0
     diff = (curve.yield - [0.0,
                            0.1559704817922999,
@@ -59,7 +59,7 @@ end
 
 @testset "SwissInhabitants data" begin
     data = readdlm("swissinhabitants")[:,1]
-    curve = ABCanalysis.ABCcurve(data) 
+    curve = CalculatedABC.ABCcurve(data) 
     @test curve.effort == 0:0.0003453038674033149:1.0
     expected_yield = readdlm("expected_yield")[:,1]
     diff = (curve.yield - expected_yield)

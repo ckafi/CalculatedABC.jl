@@ -1,5 +1,5 @@
 using Test
-using ABCanalysis
+using CalculatedABC
 
 using DelimitedFiles
 using Random, Distributions

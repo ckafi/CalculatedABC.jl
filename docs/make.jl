@@ -1,15 +1,15 @@
 push!(LOAD_PATH,"../src/")
 
 using Documenter
-using ABCanalysis
+using CalculatedABC
 
 makedocs(
-    sitename = "ABCanalysis.jl",
+    sitename = "CalculatedABC.jl",
     authors = "Tobias Frilling",
     format = Documenter.HTML(),
-    modules = [ABCanalysis]
+    modules = [CalculatedABC]
 )
 
 deploydocs(
-    repo = "github.com/ckafi/ABCanalysis.jl"
+    repo = "github.com/ckaCalculatedABCfi/CalculatedABC.jl"
 )

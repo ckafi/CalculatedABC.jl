@@ -30,3 +30,10 @@ struct ABCcurve
         new(effort, yield, interpolation)
     end
 end
+
+function Base.show(io::IO, ::MIME"text/plain", curve::ABCcurve)
+	print(io, curve.effort |> length, "-element ABCcurve\n")
+	for e in zip(curve.effort, curve.yield)
+		show(io, e)
+    end
+end

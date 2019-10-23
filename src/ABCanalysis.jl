@@ -12,17 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module ABCanalysis
+abstract type ABCanalysis end
 
-using Interpolations
-
-include("ABCcurve.jl")
-include("Gini_coeff.jl")
-include("utils.jl")
-
-
-
-
-
+struct ABCanalysisOfCurve <: ABCanalysis
+	pareto_point::Tuple{Float64, Float64}
+	break_even_point::Tuple{Float64, Float64}
+	submarginal_point::Tuple{Float64, Float64}
 end
-end # module
+
+struct ABCanalysisOfData <: ABCanalysis
+end
+
+function abc_analysis(curve::ABCcurve)
+    dist(p1,p2) = (p1 .- p2).^2 |> sum
+    zipped_curve = zip(curve.effort, curve.yield)
+    index_min_dist_point(p) = map(x -> dist(p,x), zipped_curve) |> argmin
+
+    abc_ideal_point = (0,1)
+    pareto_point_index = index_min_dist_point(abc_ideal_point)
+
+    gradients = map(i->Interpolations.gradient(curve.interpolation, i)[1], curve.effort)
+    break_even_point_index =  abs.(gradients .- 1) |> argmin
+    break_even_point = (curve.effort[break_even_point_index], 1)
+
+    submarginal_point_index = index_min_dist_point(break_even_point)
+
+    (pareto_point_index, break_even_point_index, submarginal_point_index)
+end

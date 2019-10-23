@@ -1,7 +1,8 @@
-name = "ABCanalysis"
+name = "CalculatedABC"
 uuid = "6c2f61f8-fafd-4db0-a534-9240d45f7a9c"
 authors = ["Tobias Frilling <tobias@frilling-online.de>"]
 version = "0.1.0"
 
 [deps]
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
