@@ -11,5 +11,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/ckaCalculatedABCfi/CalculatedABC.jl"
+    repo = "github.com/ckafi/CalculatedABC.jl"
 )
