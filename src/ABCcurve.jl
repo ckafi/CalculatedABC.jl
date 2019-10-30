@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+    ABCcurve(data::AbstractArray{<:Real,1})
+
+Construct an ABCcurve from the given data.
+
+# Fields
+- `effort::AbstractRange`: The effort as equidistant steps between 0 and 1.
+- `yield::AbstractArray`: The cumulative relative yield.
+- `interpolation::AbstractInterpolation`: A cubic spline interpolation of the curve.
+"""
 struct ABCcurve
     effort::AbstractRange{Float64}
     yield::AbstractArray{<:Real,1}

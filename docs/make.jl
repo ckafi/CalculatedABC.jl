@@ -7,7 +7,14 @@ makedocs(
     sitename = "CalculatedABC.jl",
     authors = "Tobias Frilling",
     format = Documenter.HTML(),
-    modules = [CalculatedABC]
+    modules = [CalculatedABC],
+    pages = [
+        "Home" => "index.md",
+        "ABC Curve" => "abccurve.md",
+        "ABC Analysis" => "abcanalysis.md",
+        "Gini Coefficient" => "gini.md"
+    ]
+
 )
 
 deploydocs(

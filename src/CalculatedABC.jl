@@ -21,4 +21,8 @@ include("ABCanalysis.jl")
 include("Gini_coeff.jl")
 include("utils.jl")
 
+export
+    ABCcurve, ABCanalysis,
+    gini_coeff
+
 end # module
