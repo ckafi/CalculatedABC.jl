@@ -57,5 +57,68 @@ struct ABCanalysis
     end
 end
 
-# struct ABCanalysisOfData <: ABCanalysis
-# end
+
+function Base.show(io::IO, ::MIME"text/plain", analysis::ABCanalysis)
+    println(io, "Pareto:          ", analysis.pareto)
+    println(io, "Break Even:      ", analysis.break_even)
+    println(io, "Demarkation A|B: ", analysis.demark_AB)
+    print(io,   "Submarginal:     ", analysis.submarginal)
+end
+
+
+# plotting
+@recipe function f(ana::ABCanalysis; comparison=true, markersize=5, annotate=true)
+    xlims --> (0,1)
+    ylims --> (0,1)
+    legend --> :bottomright
+    ratio --> 1
+
+    if annotate
+        fontsize = 8
+
+        a_size = findall(x -> x <= ana.demark_AB[1], ana.curve.effort) |> length
+        b_size = findall(x -> ana.demark_AB[1] < x <= ana.submarginal[1], ana.curve.effort) |> length
+        c_size = findall(x -> x > ana.submarginal[1], ana.curve.effort) |> length
+
+        offset_y = 0.1
+        a_xpos = ana.demark_AB[1] / 2
+        b_xpos = ana.demark_AB[1] + (ana.submarginal[1] - ana.demark_AB[1])/2
+        c_xpos = ana.submarginal[1] + 0.1
+
+        annotations := [
+                        (a_xpos, offset_y, text("A\nn = $(a_size)", fontsize))
+                        (b_xpos, offset_y, text("B\nn = $(b_size)", fontsize))
+                        (c_xpos, offset_y, text("C\nn = $(c_size)", fontsize))
+                       ]
+    end
+
+    @series begin
+        comparison := comparison
+        ana.curve
+    end
+
+    @series begin
+        label := ""
+        linecolor := :red
+        seriestype := :path
+        markershape := :none
+        path = [
+                0                  ana.demark_AB[2]
+                ana.demark_AB[1]   ana.demark_AB[2]
+                ana.demark_AB[1]   0
+                NaN                NaN
+                0                  ana.submarginal[2]
+                ana.submarginal[1] ana.submarginal[2]
+                ana.submarginal[1] 0
+
+               ]
+        path[:,1], path[:,2]
+    end
+
+    @series begin
+        label := ""
+        seriestype := :scatter
+        markercolors --> [:red, :green, :blue]
+        [ana.break_even, ana.pareto, ana.submarginal]
+    end
+end

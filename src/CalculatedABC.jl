@@ -15,6 +15,7 @@
 module CalculatedABC
 
 using Interpolations
+using Plots
 
 include("ABCcurve.jl")
 include("ABCanalysis.jl")

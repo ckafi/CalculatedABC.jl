@@ -68,3 +68,36 @@ function Base.show(io::IO, ::MIME"text/plain", curve::ABCcurve)
         show_part(zipped_curve)
     end
 end
+
+
+# plotting
+@recipe function f(curve::ABCcurve; comparison=true)
+    xlims --> (0,1)
+    ylims --> (0,1)
+    legend --> :bottomright
+    ratio --> 1
+
+    seriestype := :path
+    markershape := :none
+
+    @series begin
+        label := "Data"
+        linecolor := :blue
+        linewidth := 2
+        curve.effort, curve.yield
+    end
+    if comparison
+        @series begin
+            label := "Uniform"
+            linecolor := :green
+            linealpha := 0.3
+            curve.effort, map(x -> -x^2 + 2x, curve.effort)
+        end
+        @series begin
+            label := "Identity"
+            linecolor := :magenta
+            linealpha := 0.3
+            x -> x
+        end
+    end
+end
