@@ -41,6 +41,7 @@ struct ABCcurve
     end
 end
 
+
 function Base.show(io::IO, ::MIME"text/plain", curve::ABCcurve)
     print(io, curve.effort |> length, "-element ABCcurve")
     limit::Bool = get(io, :limit, false)
