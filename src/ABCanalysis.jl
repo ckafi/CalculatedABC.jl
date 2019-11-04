@@ -1,4 +1,4 @@
-# Copyright [2019] [Tobias Frilling]
+# Copyright 2019 Tobias Frilling
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,34 +18,107 @@
 Calculate an ABC analysis for the given curve.
 
 # Fields
-- `pareto*point`: Point on the curve at which most of the yield is already obtained. Demarkation between *A* and *B*.
-- `break*even*point`: Point on the curve where the gain (``dABC``) is 1.
-- `submarginal*point`: Point on the curve after which the gain can be considered trivial. Demarkation between *B* and *C*.
+- `pareto`: Nearest point to a theoretically ideal Breal Even poin.
+- `break_even`: Point on the curve where the gain (``dABC``) is 1.
+- `demark_AB` Point on the curve at which most of the yield is already obtained; the smaller of the Pareto and Break Even points. Demarkation between *A* and *B*.
+- `submarginal`: Point on the curve after which the gain can be considered trivial. Demarkation between *B* and *C*.
+- `curve`: The given curve. Used for plotting.
 """
 struct ABCanalysis
-    pareto_point::Tuple{Float64, Float64}
-    break_even_point::Tuple{Float64, Float64}
-    submarginal_point::Tuple{Float64, Float64}
+    pareto::Tuple{Float64, Float64}
+    break_even::Tuple{Float64, Float64}
+    demark_AB::Tuple{Float64, Float64}
+    submarginal::Tuple{Float64, Float64}
+    curve::ABCcurve
 
     function ABCanalysis(curve::ABCcurve)
         dist(p1,p2) = (p1 .- p2).^2 |> sum
         zipped_curve = zip(curve.effort, curve.yield)
         index_min_dist_point(p) = map(x -> dist(p,x), zipped_curve) |> argmin
 
-        abc_ideal_point = (0,1)
-        pareto_point_index = index_min_dist_point(abc_ideal_point)
+        abc_ideal = (0,1)
+        pareto_index = index_min_dist_point(abc_ideal)
 
         gradients = map(i->Interpolations.gradient(curve.interpolation, i)[1], curve.effort)
-        break_even_point_index =  abs.(gradients .- 1) |> argmin
-        break_even_point = (curve.effort[break_even_point_index], 1)
+        break_even_index =  abs.(gradients .- 1) |> argmin
+        break_even_ideal = (curve.effort[break_even_index], 1)
 
-        submarginal_point_index = index_min_dist_point(break_even_point)
+        submarginal_index = index_min_dist_point(break_even_ideal)
 
-        new((effort[pareto_point_index], yield[pareto_point_index]),
-            (effort[break_even_point_index], yield[break_even_point_index]),
-            (effort[submarginal_point_index], yield[submarginal_point_index]))
+        (effort, yield) = (curve.effort, curve.yield)
+        point(indx) = (effort[indx], yield[indx])
+        demark_AB_index = min(pareto_index, break_even_index)
+
+        new(point(pareto_index),
+            point(break_even_index),
+            point(demark_AB_index),
+            point(submarginal_index),
+            curve)
     end
 end
 
-# struct ABCanalysisOfData <: ABCanalysis
-# end
+
+function Base.show(io::IO, ::MIME"text/plain", analysis::ABCanalysis)
+    println(io, "Pareto:          ", analysis.pareto)
+    println(io, "Break Even:      ", analysis.break_even)
+    println(io, "Demarkation A|B: ", analysis.demark_AB)
+    print(io,   "Submarginal:     ", analysis.submarginal)
+end
+
+
+# plotting
+@recipe function f(ana::ABCanalysis; comparison=true, markersize=5, annotate=true)
+    xlims --> (0,1)
+    ylims --> (0,1)
+    legend --> :bottomright
+    ratio --> 1
+
+    if annotate
+        fontsize = 8
+
+        a_size = findall(x -> x <= ana.demark_AB[1], ana.curve.effort) |> length
+        b_size = findall(x -> ana.demark_AB[1] < x <= ana.submarginal[1], ana.curve.effort) |> length
+        c_size = findall(x -> x > ana.submarginal[1], ana.curve.effort) |> length
+
+        offset_y = 0.1
+        a_xpos = ana.demark_AB[1] / 2
+        b_xpos = ana.demark_AB[1] + (ana.submarginal[1] - ana.demark_AB[1])/2
+        c_xpos = ana.submarginal[1] + 0.1
+
+        annotations := [
+                        (a_xpos, offset_y, text("A\nn = $(a_size)", fontsize))
+                        (b_xpos, offset_y, text("B\nn = $(b_size)", fontsize))
+                        (c_xpos, offset_y, text("C\nn = $(c_size)", fontsize))
+                       ]
+    end
+
+    @series begin
+        comparison := comparison
+        ana.curve
+    end
+
+    @series begin
+        label := ""
+        linecolor := :red
+        seriestype := :path
+        markershape := :none
+        path = [
+                0                  ana.demark_AB[2]
+                ana.demark_AB[1]   ana.demark_AB[2]
+                ana.demark_AB[1]   0
+                NaN                NaN
+                0                  ana.submarginal[2]
+                ana.submarginal[1] ana.submarginal[2]
+                ana.submarginal[1] 0
+
+               ]
+        path[:,1], path[:,2]
+    end
+
+    @series begin
+        label := ""
+        seriestype := :scatter
+        markercolors --> [:red, :green, :blue]
+        [ana.break_even, ana.pareto, ana.submarginal]
+    end
+end

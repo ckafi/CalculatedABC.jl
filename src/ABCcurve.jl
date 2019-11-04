@@ -1,4 +1,4 @@
-# Copyright [2019] [Tobias Frilling]
+# Copyright 2019 Tobias Frilling
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ struct ABCcurve
     end
 end
 
+
 function Base.show(io::IO, ::MIME"text/plain", curve::ABCcurve)
     print(io, curve.effort |> length, "-element ABCcurve")
     limit::Bool = get(io, :limit, false)
@@ -65,5 +66,38 @@ function Base.show(io::IO, ::MIME"text/plain", curve::ABCcurve)
         show_part(zipped_curve[end-div(rows-1,2):end])
     else
         show_part(zipped_curve)
+    end
+end
+
+
+# plotting
+@recipe function f(curve::ABCcurve; comparison=true)
+    xlims --> (0,1)
+    ylims --> (0,1)
+    legend --> :bottomright
+    ratio --> 1
+
+    seriestype := :path
+    markershape := :none
+
+    @series begin
+        label := "Data"
+        linecolor := :blue
+        linewidth := 2
+        curve.effort, curve.yield
+    end
+    if comparison
+        @series begin
+            label := "Uniform"
+            linecolor := :green
+            linealpha := 0.3
+            curve.effort, map(x -> -x^2 + 2x, curve.effort)
+        end
+        @series begin
+            label := "Identity"
+            linecolor := :magenta
+            linealpha := 0.3
+            x -> x
+        end
     end
 end
