@@ -16,12 +16,12 @@
     remove_small_yields(data, threshold=0.005)
 
 Removes the smallest values from `data` whose cumulative yield is less than `threshold`.
-Does not preserve the order of `data`.
 """
 function remove_small_yields(data::AbstractArray{<:Real,1}, threshold::Real = 0.005)
     perm = sortperm(data)
     sorted_data = data[perm]
     yield = cumsum(sorted_data) / sum(sorted_data)
-    threshold_index = findfirst(x->x > threshold, yield)
-    data[perm[threshold_index:length(data)]]
+    threshold_index = findfirst(x -> x > threshold, yield)
+    indices = perm[threshold_index:length(data)]
+    data[sort(indices)]
 end
