@@ -10,8 +10,8 @@ makedocs(
     modules = [CalculatedABC],
     pages = [
         "Home" => "index.md",
-        "ABC Curve" => "abccurve.md",
         "ABC Analysis" => "abcanalysis.md",
+        "Plotting" => "plotting.md",
         "Gini Coefficient" => "gini.md"
     ]
 
