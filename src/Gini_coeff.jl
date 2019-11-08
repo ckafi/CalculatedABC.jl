@@ -21,6 +21,7 @@ function gini_coeff(data::AbstractArray{<:Real,1})
     @assert all(x->x >= 0, data)
     y = sort(data)
     n = length(y)
+    # cargo-culted from Wikipedia
     2 * sum([i * y[i] for i in 1:n]) / (n * sum(y)) - (n + 1) / n
 end
 
@@ -34,6 +35,6 @@ function gini_coeff(curve::ABCcurve)
     step::Float64 = curve.effort.step
     # simplified trapezoidal rule. The '- 1/2 * 2' is for the gini coefficient
     # this only works for equidistant steps
-    ((sum(yield) - yield[end] / 2) * step - 1 / 2) * 2
+    ((sum(yield) - yield[end] / 2) * step - 1/2) * 2
 end
 

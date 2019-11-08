@@ -34,8 +34,10 @@ struct ABCanalysis4Curve <: ABCanalysis
     curve::ABCcurve
 
     function ABCanalysis4Curve(curve::ABCcurve)
+        # euclidean distance (without sqrt)
         dist(p1,p2) = (p1 .- p2).^2 |> sum
         zipped_curve = zip(curve.effort, curve.yield)
+        # detemines the index of the closest point to p
         index_min_dist_point(p) = map(x -> dist(p,x), zipped_curve) |> argmin
 
         abc_ideal = (0,1)
@@ -95,7 +97,6 @@ struct ABCanalysis4Data <: ABCanalysis
         curve = ABCcurve(data)
         ana = ABCanalysis4Curve(curve)
         perm = sortperm(data)
-        sorted_data = data[perm]
         reverse_perm = sortperm(perm)
 
         # have to subtract 1 because we added (0,0) to the curve data
@@ -152,12 +153,14 @@ end
     markersize --> 5
 
     if annotate
+        # plot annotations
         fontsize = 8
-
+        # these are the 'n = ???' in the plot
         a_size = findfirst(isequal(ana.demark_AB[1]), ana.curve.effort)
         b_size = findfirst(isequal(ana.submarginal[1]), ana.curve.effort) - a_size
         c_size = length(ana.curve.effort) - a_size - b_size
 
+        # position for A and B is centred between set boundaries
         offset_y = 0.1
         a_xpos = ana.demark_AB[1] / 2
         b_xpos = ana.demark_AB[1] + (ana.submarginal[1] - ana.demark_AB[1])/2
@@ -177,10 +180,12 @@ end
     end
 
     @series begin
+        # set boundaries
         label := ""
         linecolor := :red
         seriestype := :path
         markershape := :none
+        # path for the boundary lines. NaN starts a new line
         path = [
                 0                  ana.demark_AB[2]
                 ana.demark_AB[1]   ana.demark_AB[2]
@@ -194,6 +199,7 @@ end
     end
 
     @series begin
+        # marker for the analysis points
         label := ""
         seriestype := :scatter
         markercolors --> [:red, :green, :blue]
