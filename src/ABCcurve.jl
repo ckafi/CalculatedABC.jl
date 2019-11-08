@@ -42,6 +42,7 @@ struct ABCcurve
 end
 
 
+# text representation for REPL or Jupyter
 function Base.show(io::IO, ::MIME"text/plain", curve::ABCcurve)
     print(io, curve.effort |> length, "-element ABCcurve")
     limit::Bool = get(io, :limit, false)
@@ -83,13 +84,14 @@ end
     @series begin
         label := "Data"
         linecolor := :blue
-        linewidth := 2
+        linewidth --> 2
         curve.effort, curve.yield
     end
     if comparison
         @series begin
             label := "Uniform"
             linecolor := :green
+            linewidth --> 1
             linealpha := 0.3
             curve.effort, map(x -> -x^2 + 2x, curve.effort)
         end
