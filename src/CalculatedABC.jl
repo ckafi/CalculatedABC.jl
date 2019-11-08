@@ -23,7 +23,8 @@ include("Gini_coeff.jl")
 include("utils.jl")
 
 export
-    ABCcurve, ABCanalysis,
-    gini_coeff
+    ABCcurve, ABCanalysis, ABCanalysis4Curve, ABCanalysis4Data,
+    gini_coeff,
+    remove_small_yields
 
 end # module

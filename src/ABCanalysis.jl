@@ -12,26 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+abstract type ABCanalysis end
+
 """
-    ABCanalysis(curve::ABCcurve)
+    ABCanalysis4Curve(curve::ABCcurve) <: ABCanalysis
 
 Calculate an ABC analysis for the given curve.
 
 # Fields
-- `pareto`: Nearest point to a theoretically ideal Breal Even poin.
+- `pareto`: Nearest point to a theoretically ideal Break Even point.
 - `break_even`: Point on the curve where the gain (``dABC``) is 1.
 - `demark_AB` Point on the curve at which most of the yield is already obtained; the smaller of the Pareto and Break Even points. Demarkation between *A* and *B*.
 - `submarginal`: Point on the curve after which the gain can be considered trivial. Demarkation between *B* and *C*.
 - `curve`: The given curve. Used for plotting.
 """
-struct ABCanalysis
-    pareto::Tuple{Float64, Float64}
-    break_even::Tuple{Float64, Float64}
-    demark_AB::Tuple{Float64, Float64}
+struct ABCanalysis4Curve <: ABCanalysis
+    pareto     ::Tuple{Float64, Float64}
+    break_even ::Tuple{Float64, Float64}
+    demark_AB  ::Tuple{Float64, Float64}
     submarginal::Tuple{Float64, Float64}
     curve::ABCcurve
 
-    function ABCanalysis(curve::ABCcurve)
+    function ABCanalysis4Curve(curve::ABCcurve)
         dist(p1,p2) = (p1 .- p2).^2 |> sum
         zipped_curve = zip(curve.effort, curve.yield)
         index_min_dist_point(p) = map(x -> dist(p,x), zipped_curve) |> argmin
@@ -41,13 +43,14 @@ struct ABCanalysis
 
         gradients = map(i->Interpolations.gradient(curve.interpolation, i)[1], curve.effort)
         break_even_index =  abs.(gradients .- 1) |> argmin
-        break_even_ideal = (curve.effort[break_even_index], 1)
 
+        demark_AB_index = min(pareto_index, break_even_index)
+
+        break_even_ideal = (curve.effort[max(pareto_index, break_even_index)], 1)
         submarginal_index = index_min_dist_point(break_even_ideal)
 
         (effort, yield) = (curve.effort, curve.yield)
         point(indx) = (effort[indx], yield[indx])
-        demark_AB_index = min(pareto_index, break_even_index)
 
         new(point(pareto_index),
             point(break_even_index),
@@ -57,28 +60,103 @@ struct ABCanalysis
     end
 end
 
+"""
+    ABCanalysis(curve::ABCcurve)
 
-function Base.show(io::IO, ::MIME"text/plain", analysis::ABCanalysis)
+Convenience function for `ABCanalysis4Curve(curve)`
+"""
+ABCanalysis(curve::ABCcurve) = ABCanalysis4Curve(curve)
+
+
+"""
+    ABCanalysis4Data(data::AbstractArray{<:Real,1}) <: ABCanalysis
+
+Calculate an ABC analysis for the given data.
+
+# Fields
+Extends `ABCanalysis4Curve` with:
+- `a_indices`: Indices of elements in the *A* set.
+- `b_indices`: Indices of elements in the *B* set.
+- `c_indices`: Indices of elements in the *C* set.
+"""
+struct ABCanalysis4Data <: ABCanalysis
+    pareto     ::Tuple{Float64, Float64}
+    break_even ::Tuple{Float64, Float64}
+    demark_AB  ::Tuple{Float64, Float64}
+    submarginal::Tuple{Float64, Float64}
+
+    a_indices::Array{Int64,1}
+    b_indices::Array{Int64,1}
+    c_indices::Array{Int64,1}
+
+    curve::ABCcurve
+
+    function ABCanalysis4Data(data::AbstractArray{<:Real,1})
+        curve = ABCcurve(data)
+        ana = ABCanalysis4Curve(curve)
+        perm = sortperm(data)
+        sorted_data = data[perm]
+        reverse_perm = sortperm(perm)
+
+        # have to subtract 1 because we added (0,0) to the curve data
+        point2index(p) = findfirst(isequal(p[1]), curve.effort) - 1
+        threshold_a = point2index(ana.demark_AB)
+        threshold_b = point2index(ana.submarginal)
+
+        new(ana.pareto,
+            ana.break_even,
+            ana.demark_AB,
+            ana.submarginal,
+            perm[1:threshold_a],
+            perm[threshold_a+1:threshold_b],
+            perm[threshold_b+1:end],
+            curve)
+    end
+end
+
+"""
+    ABCanalysis(data::AbstractArray{<:Real,1})
+
+Convenience function for `ABCanalysis4Data(data)`
+"""
+ABCanalysis(data::AbstractArray{<:Real,1}) = ABCanalysis4Data(data)
+
+
+# text representation for REPL or Jupyter
+function show_points(io::IO, analysis::ABCanalysis)
     println(io, "Pareto:          ", analysis.pareto)
     println(io, "Break Even:      ", analysis.break_even)
     println(io, "Demarkation A|B: ", analysis.demark_AB)
     print(io,   "Submarginal:     ", analysis.submarginal)
 end
 
+function Base.show(io::IO, ::MIME"text/plain", analysis::ABCanalysis)
+    show_points(io, analysis)
+end
+
+function Base.show(io::IO, ::MIME"text/plain", analysis::ABCanalysis4Data)
+    show_points(io, analysis)
+    println(io)
+    println(io, "A: $(analysis.a_indices |> length) elements")
+    println(io, "B: $(analysis.b_indices |> length) elements")
+    print(io, "C: $(analysis.c_indices |> length) elements")
+end
+
 
 # plotting
-@recipe function f(ana::ABCanalysis; comparison=true, markersize=5, annotate=true)
+@recipe function f(ana::ABCanalysis; comparison=true, annotate=true)
     xlims --> (0,1)
     ylims --> (0,1)
     legend --> :bottomright
     ratio --> 1
+    markersize --> 5
 
     if annotate
         fontsize = 8
 
-        a_size = findall(x -> x <= ana.demark_AB[1], ana.curve.effort) |> length
-        b_size = findall(x -> ana.demark_AB[1] < x <= ana.submarginal[1], ana.curve.effort) |> length
-        c_size = findall(x -> x > ana.submarginal[1], ana.curve.effort) |> length
+        a_size = findfirst(isequal(ana.demark_AB[1]), ana.curve.effort)
+        b_size = findfirst(isequal(ana.submarginal[1]), ana.curve.effort) - a_size
+        c_size = length(ana.curve.effort) - a_size - b_size
 
         offset_y = 0.1
         a_xpos = ana.demark_AB[1] / 2
@@ -86,7 +164,8 @@ end
         c_xpos = ana.submarginal[1] + 0.1
 
         annotations := [
-                        (a_xpos, offset_y, text("A\nn = $(a_size)", fontsize))
+                        # a_size - 1 because we added (0,0) in Curve
+                        (a_xpos, offset_y, text("A\nn = $(a_size-1)", fontsize))
                         (b_xpos, offset_y, text("B\nn = $(b_size)", fontsize))
                         (c_xpos, offset_y, text("C\nn = $(c_size)", fontsize))
                        ]
@@ -110,7 +189,6 @@ end
                 0                  ana.submarginal[2]
                 ana.submarginal[1] ana.submarginal[2]
                 ana.submarginal[1] 0
-
                ]
         path[:,1], path[:,2]
     end
