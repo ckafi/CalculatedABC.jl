@@ -71,7 +71,7 @@ ABCanalysis(curve::ABCcurve) = ABCanalysis4Curve(curve)
 
 
 """
-    ABCanalysis4Data(data::AbstractArray{<:Real,1}) <: ABCanalysis
+    ABCanalysis4Data(data::Vector{<:Real}) <: ABCanalysis
 
 Calculate an ABC analysis for the given data.
 
@@ -87,13 +87,13 @@ struct ABCanalysis4Data <: ABCanalysis
     demark_AB  ::Tuple{Float64, Float64}
     submarginal::Tuple{Float64, Float64}
 
-    a_indices::Array{Int64,1}
-    b_indices::Array{Int64,1}
-    c_indices::Array{Int64,1}
+    a_indices::Vector{Int64}
+    b_indices::Vector{Int64}
+    c_indices::Vector{Int64}
 
     curve::ABCcurve
 
-    function ABCanalysis4Data(data::AbstractArray{<:Real,1})
+    function ABCanalysis4Data(data::Vector{<:Real})
         curve = ABCcurve(data)
         ana = ABCanalysis4Curve(curve)
         perm = sortperm(data)
@@ -116,11 +116,11 @@ struct ABCanalysis4Data <: ABCanalysis
 end
 
 """
-    ABCanalysis(data::AbstractArray{<:Real,1})
+    ABCanalysis(data::Vector{<:Real})
 
 Convenience function for `ABCanalysis4Data(data)`
 """
-ABCanalysis(data::AbstractArray{<:Real,1}) = ABCanalysis4Data(data)
+ABCanalysis(data::Vector{<:Real}) = ABCanalysis4Data(data)
 
 
 # text representation for REPL or Jupyter

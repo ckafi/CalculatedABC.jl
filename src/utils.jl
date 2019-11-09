@@ -17,7 +17,7 @@
 
 Removes the smallest values from `data` whose cumulative yield is less than `threshold`.
 """
-function remove_small_yields(data::AbstractArray{<:Real,1}, threshold::Real = 0.005)
+function remove_small_yields(data::Vector{<:Real}, threshold::Real = 0.005)
     perm = sortperm(data)
     sorted_data = data[perm]
     yield = cumsum(sorted_data) / sum(sorted_data)

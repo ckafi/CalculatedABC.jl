@@ -13,11 +13,11 @@
 # limitations under the License.
 
 """
-    gini_coeff(data::AbstractArray{<:Real,1})
+    gini_coeff(data::Vector{<:Real})
 
 Calculates the Gini coefficient for the given data.
 """
-function gini_coeff(data::AbstractArray{<:Real,1})
+function gini_coeff(data::Vector{<:Real})
     @assert all(x->x >= 0, data)
     y = sort(data)
     n = length(y)

@@ -13,21 +13,21 @@
 # limitations under the License.
 
 """
-    ABCcurve(data::AbstractArray{<:Real,1})
+    ABCcurve(data::Vector{<:Real})
 
 Construct an ABCcurve from the given data.
 
 # Fields
 - `effort::AbstractRange`: The effort as equidistant steps between 0 and 1.
-- `yield::AbstractArray`: The cumulative relative yield.
+- `yield::Vector`: The cumulative relative yield.
 - `interpolation::AbstractInterpolation`: A cubic spline interpolation of the curve.
 """
 struct ABCcurve
     effort::AbstractRange{Float64}
-    yield::AbstractArray{<:Real,1}
+    yield::Vector{<:Real}
     interpolation::AbstractInterpolation{<:Real,1,BSpline{Cubic{Line{OnGrid}}}}
 
-    function ABCcurve(data::AbstractArray{<:Real,1})
+    function ABCcurve(data::Vector{<:Real})
         @assert all(x->x >= 0, data)
         sorted_data = sort(data, rev = true)
         n = length(sorted_data)
