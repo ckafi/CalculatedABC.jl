@@ -96,8 +96,7 @@ struct ABCanalysis4Data <: ABCanalysis
     function ABCanalysis4Data(data::Vector{<:Real})
         curve = ABCcurve(data)
         ana = ABCanalysis4Curve(curve)
-        perm = sortperm(data)
-        reverse_perm = sortperm(perm)
+        perm = sortperm(data, rev=true)
 
         # have to subtract 1 because we added (0,0) to the curve data
         point2index(p) = findfirst(isequal(p[1]), curve.effort) - 1

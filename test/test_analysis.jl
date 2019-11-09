@@ -17,9 +17,9 @@ Base.isapprox(x::Tuple, y::Tuple; kws...) = isapprox(collect(x), collect(y); kws
     @test isapprox(analysis2.break_even,  (0.5, 0.7210686469145638))
     @test isapprox(analysis2.demark_AB,   (0.4, 0.6192318028485929))
     @test isapprox(analysis2.submarginal, (0.6, 0.8125961014234772))
-    @test analysis2.a_indices == [8, 10, 11, 20, 9, 17, 15, 5]
-    @test analysis2.b_indices == [4, 18, 16, 12]
-    @test analysis2.c_indices == [19, 7, 14, 6, 3, 1, 13, 2]
+    @test analysis2.a_indices == [2, 13, 1, 3, 6, 14, 7, 19]
+    @test analysis2.b_indices == [12, 16, 18, 4]
+    @test analysis2.c_indices == [5, 15, 17, 9, 20, 11, 10, 8]
 end
 
 @testset "Exponentially distributed values" begin
@@ -38,9 +38,9 @@ end
     @test isapprox(analysis2.break_even,  (0.35, 0.6503414525690906))
     @test isapprox(analysis2.demark_AB,   (0.35, 0.6503414525690906))
     @test isapprox(analysis2.submarginal, (0.5, 0.7704643555492489))
-    @test analysis2.a_indices == [10, 1, 8, 18, 14, 11, 9]
-    @test analysis2.b_indices == [17, 7, 16]
-    @test analysis2.c_indices == [12, 3, 15, 5, 4, 6, 20, 13, 19, 2]
+    @test analysis2.a_indices == [2, 19, 13, 20, 6, 4, 5]
+    @test analysis2.b_indices == [15, 3, 12]
+    @test analysis2.c_indices == [16, 7, 17, 9, 11, 14, 18, 8, 1, 10]
 end
 
 @testset "SwissInhabitants data" begin
@@ -62,7 +62,7 @@ end
     @test (analysis2.a_indices |> length) == 642
     @test (analysis2.b_indices |> length) == 434
     @test (analysis2.c_indices |> length) == 1820
-    @test maximum(data[analysis2.a_indices]) <= minimum(data[analysis2.b_indices])
-    @test maximum(data[analysis2.b_indices]) <= minimum(data[analysis2.c_indices])
+    @test minimum(data[analysis2.a_indices]) >= maximum(data[analysis2.b_indices])
+    @test minimum(data[analysis2.b_indices]) >= maximum(data[analysis2.c_indices])
 end
 end
