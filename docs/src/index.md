@@ -21,9 +21,9 @@ From the documentation of the R package:
 
 ### Installation
 
-CalculatedABC.jl is not yet a registered package.
-To install the development version from a Julia REPL type `]` to enter Pkg REPL mode and run
+CalculatedABC.jl is registered in the official registry of general Julia packages.
 
+To install the *development version* from a Julia REPL type `]` to enter Pkg REPL mode and run
 ```julia
 pkg> add https://github.com/ckafi/CalculatedABC.jl
 ```
