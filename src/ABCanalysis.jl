@@ -22,7 +22,7 @@ Calculate an ABC analysis for the given curve.
 # Fields
 - `pareto`: Nearest point to a theoretically ideal Break Even point.
 - `break_even`: Point on the curve where the gain (``dABC``) is 1.
-- `demark_AB` Point on the curve at which most of the yield is already obtained; the smaller of the Pareto and Break Even points. Demarkation between *A* and *B*.
+- `demark_AB`: Point on the curve at which most of the yield is already obtained; the smaller of the Pareto and Break Even points. Demarkation between *A* and *B*.
 - `submarginal`: Point on the curve after which the gain can be considered trivial. Demarkation between *B* and *C*.
 - `curve`: The given curve. Used for plotting.
 """
